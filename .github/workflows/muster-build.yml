@@ -1,0 +1,35 @@
+name: muster-build
+
+# Build the patched ollama binary on each native OS runner and upload each as
+# an artifact. Run it by hand: repo -> Actions -> muster-build -> Run workflow,
+# then download the three binaries from the finished run.
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: ubuntu-latest
+            out: ollama-linux-amd64
+          - os: windows-latest
+            out: ollama-windows-amd64.exe
+          - os: macos-latest
+            out: ollama-darwin-arm64
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+      - name: Build
+        shell: bash
+        env:
+          CGO_ENABLED: "1"
+        run: go build -o "${{ matrix.out }}" .
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.out }}
+          path: ${{ matrix.out }}
