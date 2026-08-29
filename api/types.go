@@ -594,6 +594,10 @@ type Runner struct {
 	NumThread       int    `json:"num_thread,omitempty"`
 	DraftNumPredict int    `json:"draft_num_predict,omitempty"`
 	RPCServers      string `json:"rpc_servers,omitempty"`
+	NumCPUMoE       int    `json:"num_cpu_moe,omitempty"`
+	Device          string `json:"device,omitempty"`
+	NumHotSlots     int    `json:"num_hot_slots,omitempty"`
+	ColdStore       string `json:"cold_store,omitempty"`
 }
 
 // EmbedRequest is the request passed to [Client.Embed].

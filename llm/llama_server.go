@@ -415,6 +415,21 @@ func startLlamaServer(launch llamaServerLaunchConfig, out io.Writer) (cmd *exec.
 		params = append(params, "--rpc", servers)
 	}
 
+	// Forward num_cpu_moe to the runner.
+	if launch.opts.NumCPUMoE > 0 {
+		params = append(params, "--n-cpu-moe", strconv.Itoa(launch.opts.NumCPUMoE))
+	}
+
+	// Forward device to the runner.
+	if device := strings.TrimSpace(launch.opts.Device); device != "" {
+		params = append(params, "--device", device)
+	}
+
+	// num_hot_slots requires weight repacking to be disabled.
+	if launch.opts.NumHotSlots > 0 {
+		params = append(params, "--no-repack")
+	}
+
 	// Thread count — only pass if user explicitly set it.
 	// Default behavior: let llama-server auto-detect.
 	if launch.opts.NumThread > 0 {
@@ -435,6 +450,14 @@ func startLlamaServer(launch llamaServerLaunchConfig, out io.Writer) (cmd *exec.
 	}
 	cmd.SysProcAttr = LlamaServerSysProcAttr
 	SetupLlamaServerCommandEnv(cmd, exe, launch.gpuLibs, launch.extraEnvsForStart())
+
+	// Forward num_hot_slots and cold_store to the runner via the environment.
+	if launch.opts.NumHotSlots > 0 {
+		cmd.Env = append(cmd.Env, fmt.Sprintf("MUSTER_HOT_SLOTS=%d", launch.opts.NumHotSlots))
+	}
+	if cs := strings.TrimSpace(launch.opts.ColdStore); cs != "" {
+		cmd.Env = append(cmd.Env, "MUSTER_COLD_STORE="+cs)
+	}
 
 	slog.Info("starting llama-server", "cmd", cmd)
 	slog.Debug("subprocess", "", filteredEnv(cmd.Env))
