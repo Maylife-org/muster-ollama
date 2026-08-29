@@ -14,10 +14,13 @@ jobs:
         include:
           - os: ubuntu-latest
             out: ollama-linux-amd64
+            extldflags: "-static-libgcc -static-libstdc++"
           - os: windows-latest
             out: ollama-windows-amd64.exe
+            extldflags: "-static"
           - os: macos-latest
             out: ollama-darwin-arm64
+            extldflags: ""
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v4
@@ -28,7 +31,12 @@ jobs:
         shell: bash
         env:
           CGO_ENABLED: "1"
-        run: go build -o "${{ matrix.out }}" .
+        run: |
+          LD="-w -s -X=github.com/ollama/ollama/version.Version=0.0.0-muster"
+          if [ -n "${{ matrix.extldflags }}" ]; then
+            LD="${LD} -linkmode external -extldflags '${{ matrix.extldflags }}'"
+          fi
+          go build -trimpath -ldflags "${LD}" -o "${{ matrix.out }}" .
       - uses: actions/upload-artifact@v4
         with:
           name: ${{ matrix.out }}
