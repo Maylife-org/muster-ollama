@@ -453,10 +453,10 @@ func startLlamaServer(launch llamaServerLaunchConfig, out io.Writer) (cmd *exec.
 
 	// Forward num_hot_slots and cold_store to the runner via the environment.
 	if launch.opts.NumHotSlots > 0 {
-		cmd.Env = append(cmd.Env, fmt.Sprintf("MUSTER_HOT_SLOTS=%d", launch.opts.NumHotSlots))
+		cmd.Env = append(cmd.Env, fmt.Sprintf("LLAMA_EXPERT_CACHE_SLOTS=%d", launch.opts.NumHotSlots))
 	}
 	if cs := strings.TrimSpace(launch.opts.ColdStore); cs != "" {
-		cmd.Env = append(cmd.Env, "MUSTER_COLD_STORE="+cs)
+		cmd.Env = append(cmd.Env, "LLAMA_EXPERT_CACHE_STORE="+cs)
 	}
 
 	slog.Info("starting llama-server", "cmd", cmd)
