@@ -25,9 +25,11 @@ jobs:
       - name: Install Ninja
         run: sudo apt-get update && sudo apt-get install -y ninja-build
       - name: Apply Ollama compat patches to the fork
+        shell: bash
         run: |
+          WS="${{ github.workspace }}"; WS="${WS//\\//}"
           cd _fork
-          cmake -DPATCH_DIR=../llama/compat -DPATCH_LABEL=llama/compat -P ../cmake/apply-git-patches.cmake
+          cmake -DPATCH_DIR="$WS/llama/compat" -DPATCH_LABEL=llama/compat -P "$WS/cmake/apply-git-patches.cmake"
       - name: Build (ollama + CPU llama-server payload, from the fork)
         env:
           CMAKE_GENERATOR: Ninja
@@ -75,8 +77,9 @@ jobs:
       - name: Apply Ollama compat patches to the fork
         shell: bash
         run: |
+          WS="${{ github.workspace }}"; WS="${WS//\\//}"
           cd _fork
-          cmake -DPATCH_DIR=../llama/compat -DPATCH_LABEL=llama/compat -P ../cmake/apply-git-patches.cmake
+          cmake -DPATCH_DIR="$WS/llama/compat" -DPATCH_LABEL=llama/compat -P "$WS/cmake/apply-git-patches.cmake"
       - name: Build (ollama.exe + CPU llama-server payload, from the fork)
         shell: bash
         env:
@@ -114,9 +117,11 @@ jobs:
       - name: Ensure Metal toolchain (llama-server embeds Metal on Apple arm64)
         run: xcodebuild -downloadComponent MetalToolchain || true
       - name: Apply Ollama compat patches to the fork
+        shell: bash
         run: |
+          WS="${{ github.workspace }}"; WS="${WS//\\//}"
           cd _fork
-          cmake -DPATCH_DIR=../llama/compat -DPATCH_LABEL=llama/compat -P ../cmake/apply-git-patches.cmake
+          cmake -DPATCH_DIR="$WS/llama/compat" -DPATCH_LABEL=llama/compat -P "$WS/cmake/apply-git-patches.cmake"
       - name: Build (ollama + llama-server payload, from the fork)
         env:
           CMAKE_GENERATOR: Ninja
