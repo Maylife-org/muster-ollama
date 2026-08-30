@@ -2,6 +2,7 @@ name: muster-build
 
 # Build ollama + its llama-server runner (compiled from the muster-llama.cpp
 # fork — where the cache lives) per OS. CPU-only, unsigned, manual trigger.
+# Needs secret FORK_TOKEN: read access to the private muster-llama.cpp fork.
 
 on:
   workflow_dispatch:
@@ -11,6 +12,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      - name: Authenticate to the private fork
+        run: git config --global "url.https://x-access-token:${{ secrets.FORK_TOKEN }}@github.com/.insteadOf" "https://github.com/"
       - uses: actions/setup-go@v5
         with:
           go-version-file: go.mod
@@ -37,6 +40,8 @@ jobs:
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v4
+      - name: Authenticate to the private fork
+        run: git config --global "url.https://x-access-token:${{ secrets.FORK_TOKEN }}@github.com/.insteadOf" "https://github.com/"
       - uses: actions/setup-go@v5
         with:
           go-version-file: go.mod
@@ -71,6 +76,8 @@ jobs:
     runs-on: macos-latest
     steps:
       - uses: actions/checkout@v4
+      - name: Authenticate to the private fork
+        run: git config --global "url.https://x-access-token:${{ secrets.FORK_TOKEN }}@github.com/.insteadOf" "https://github.com/"
       - uses: actions/setup-go@v5
         with:
           go-version-file: go.mod
