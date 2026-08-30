@@ -78,6 +78,10 @@ jobs:
         shell: bash
         run: |
           WS="${{ github.workspace }}"; WS="${WS//\\//}"
+          # Windows checkout can leave CRLF on text files; git apply needs the patch
+          # and its target source to share line endings. Force LF on both.
+          find llama/compat -name '*.patch' -exec sed -i 's/\r$//' {} +
+          find _fork/src _fork/tools -type f \( -name '*.cpp' -o -name '*.h' -o -name '*.hpp' \) -exec sed -i 's/\r$//' {} +
           cd _fork
           cmake -DPATCH_DIR="$WS/llama/compat" -DPATCH_LABEL=llama/compat -P "$WS/cmake/apply-git-patches.cmake"
       - name: Build (ollama.exe + CPU llama-server payload, from the fork)
