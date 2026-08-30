@@ -72,8 +72,10 @@ jobs:
           Expand-Archive -Path "$env:RUNNER_TEMP\llvm-mingw.zip" -DestinationPath "C:\Program Files\"
           $bin = (Resolve-Path "C:\Program Files\llvm-mingw-*-x86_64*\bin").Path
           echo "$bin" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
-          echo "CC=$bin\x86_64-w64-mingw32-gcc.exe"  | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
-          echo "CXX=$bin\x86_64-w64-mingw32-g++.exe" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+          # By name, not full path: Go's CGO splits $CC on spaces, and the full path
+          # runs through "C:\Program Files". On PATH, the name resolves cleanly.
+          echo "CC=x86_64-w64-mingw32-gcc.exe"  | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+          echo "CXX=x86_64-w64-mingw32-g++.exe" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
       - name: Apply Ollama compat patches to the fork
         shell: bash
         run: |
