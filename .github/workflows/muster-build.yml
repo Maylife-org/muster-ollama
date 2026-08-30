@@ -12,8 +12,6 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Authenticate to the private fork
-        run: git config --global "url.https://x-access-token:${{ secrets.FORK_TOKEN }}@github.com/.insteadOf" "https://github.com/"
       - uses: actions/setup-go@v5
         with:
           go-version-file: go.mod
@@ -22,6 +20,10 @@ jobs:
       - name: Build (ollama + CPU llama-server payload, from the fork)
         env:
           CMAKE_GENERATOR: Ninja
+          # Feed git the fork credential via the environment so CMake's clone inherits it.
+          GIT_CONFIG_COUNT: "1"
+          GIT_CONFIG_KEY_0: "url.https://x-access-token:${{ secrets.FORK_TOKEN }}@github.com/.insteadOf"
+          GIT_CONFIG_VALUE_0: "https://github.com/"
         run: |
           cmake -B build . -DOLLAMA_VERSION=0.0.0-muster -DOLLAMA_MLX_BACKENDS=
           cmake --build build --parallel
@@ -40,8 +42,6 @@ jobs:
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Authenticate to the private fork
-        run: git config --global "url.https://x-access-token:${{ secrets.FORK_TOKEN }}@github.com/.insteadOf" "https://github.com/"
       - uses: actions/setup-go@v5
         with:
           go-version-file: go.mod
@@ -60,6 +60,9 @@ jobs:
         env:
           VERSION: 0.0.0-muster
           CMAKE_GENERATOR: Ninja
+          GIT_CONFIG_COUNT: "1"
+          GIT_CONFIG_KEY_0: "url.https://x-access-token:${{ secrets.FORK_TOKEN }}@github.com/.insteadOf"
+          GIT_CONFIG_VALUE_0: "https://github.com/"
         run: ./scripts/build_windows.ps1 cpu ollama
       - name: Assemble drop-in folder
         shell: bash
@@ -76,8 +79,6 @@ jobs:
     runs-on: macos-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Authenticate to the private fork
-        run: git config --global "url.https://x-access-token:${{ secrets.FORK_TOKEN }}@github.com/.insteadOf" "https://github.com/"
       - uses: actions/setup-go@v5
         with:
           go-version-file: go.mod
@@ -88,6 +89,9 @@ jobs:
       - name: Build (ollama + llama-server payload, from the fork)
         env:
           CMAKE_GENERATOR: Ninja
+          GIT_CONFIG_COUNT: "1"
+          GIT_CONFIG_KEY_0: "url.https://x-access-token:${{ secrets.FORK_TOKEN }}@github.com/.insteadOf"
+          GIT_CONFIG_VALUE_0: "https://github.com/"
         run: |
           cmake -B build . -DOLLAMA_VERSION=0.0.0-muster -DOLLAMA_MLX_BACKENDS=
           cmake --build build --parallel
