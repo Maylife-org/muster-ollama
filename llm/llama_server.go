@@ -454,6 +454,11 @@ func startLlamaServer(launch llamaServerLaunchConfig, out io.Writer) (cmd *exec.
 	// Forward num_hot_slots and cold_store to the runner via the environment.
 	if launch.opts.NumHotSlots > 0 {
 		cmd.Env = append(cmd.Env, fmt.Sprintf("LLAMA_EXPERT_CACHE_SLOTS=%d", launch.opts.NumHotSlots))
+		// Use the streaming cache path (hot-only decode + on-demand cold fetch). It
+		// emits only valid slot ids; the older hot/cold split marks skipped experts
+		// with -1 sentinels, which crash ggml's cross-backend expert-copy scan the
+		// moment a GPU offloads — so streaming is the only path that works with a GPU.
+		cmd.Env = append(cmd.Env, "LLAMA_EXPERT_CACHE_STREAM=1")
 	}
 	if cs := strings.TrimSpace(launch.opts.ColdStore); cs != "" {
 		cmd.Env = append(cmd.Env, "LLAMA_EXPERT_CACHE_STORE="+cs)
