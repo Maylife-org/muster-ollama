@@ -16,7 +16,7 @@ jobs:
           go-version-file: go.mod
       - name: Install Ninja
         run: sudo apt-get update && sudo apt-get install -y ninja-build
-      - name: Build (ollama + CPU llama-server payload, from the fork)
+      - name: Build (ollama + CPU llama-server payload)
         env:
           CMAKE_GENERATOR: Ninja
         run: |
@@ -50,9 +50,9 @@ jobs:
           Expand-Archive -Path "$env:RUNNER_TEMP\llvm-mingw.zip" -DestinationPath "C:\Program Files\"
           $bin = (Resolve-Path "C:\Program Files\llvm-mingw-*-x86_64*\bin").Path
           echo "$bin" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
-          echo "CC=$bin_64-w64-mingw32-gcc.exe"  | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
-          echo "CXX=$bin_64-w64-mingw32-g++.exe" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
-      - name: Build (CPU llama-server + ollama.exe, from the fork)
+          echo "CC=x86_64-w64-mingw32-gcc.exe"  | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+          echo "CXX=x86_64-w64-mingw32-g++.exe" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+      - name: Build (CPU llama-server + ollama.exe)
         shell: pwsh
         env:
           VERSION: 0.0.0-muster
@@ -80,7 +80,7 @@ jobs:
         run: brew install ninja
       - name: Ensure Metal toolchain (llama-server embeds Metal on Apple arm64)
         run: xcodebuild -downloadComponent MetalToolchain || true
-      - name: Build (ollama + llama-server payload, from the fork)
+      - name: Build (ollama + llama-server payload)
         env:
           CMAKE_GENERATOR: Ninja
         run: |

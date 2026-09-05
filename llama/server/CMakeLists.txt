@@ -177,6 +177,7 @@ set(LLAMA_TOOLS_INSTALL OFF CACHE BOOL "" FORCE)
 set(LLAMA_CURL OFF CACHE BOOL "" FORCE)
 set(LLAMA_OPENSSL OFF CACHE BOOL "" FORCE)
 set(LLAMA_SUBPROCESS OFF CACHE BOOL "" FORCE)
+set(GGML_RPC ON CACHE BOOL "" FORCE)
 
 FetchContent_Declare(
     llama_cpp
@@ -538,6 +539,22 @@ else()
     install(TARGETS ${_llama_server_base_libs}
         RUNTIME DESTINATION ${_base_dest} COMPONENT llama-server OPTIONAL
         LIBRARY DESTINATION ${_base_dest} COMPONENT llama-server OPTIONAL)
+
+    # RPC backend module (GGML_RPC=ON + GGML_BACKEND_DL): built as a loadable
+    # module like the CPU variants, but absent from every install list above -
+    # without this, llama-server disables --rpc at runtime for want of the DLL.
+    if(TARGET ggml-rpc)
+        install(TARGETS ggml-rpc
+            RUNTIME DESTINATION ${_base_dest} COMPONENT llama-server OPTIONAL
+            LIBRARY DESTINATION ${_base_dest} COMPONENT llama-server OPTIONAL)
+    endif()
+
+    # the card-side program: lets any box SERVE its experts over RPC (built via
+    # LLAMA_BUILD_TOOLS but never installed by default - same trap as ggml-rpc).
+    if(TARGET rpc-server)
+        install(TARGETS rpc-server
+            RUNTIME DESTINATION ${_base_dest} COMPONENT llama-server OPTIONAL)
+    endif()
 
     # Bundle Windows CRT DLLs alongside the executables so zip installs
     # do not depend on host-global redistributables.
