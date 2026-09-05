@@ -409,6 +409,22 @@ func startLlamaServer(launch llamaServerLaunchConfig, out io.Writer) (cmd *exec.
 	}
 	// NumGPU == -1 (default): don't pass -ngl, let llama-server auto-detect
 
+	// Offload to remote RPC backends when requested via the rpc_servers
+	// option (comma-separated host:port of ggml-rpc-server instances).
+	if servers := strings.TrimSpace(launch.opts.RPCServers); servers != "" {
+		params = append(params, "--rpc", servers)
+	}
+
+	// Forward num_cpu_moe to the runner.
+	if launch.opts.NumCPUMoE > 0 {
+		params = append(params, "--n-cpu-moe", strconv.Itoa(launch.opts.NumCPUMoE))
+	}
+
+	// Forward device to the runner.
+	if device := strings.TrimSpace(launch.opts.Device); device != "" {
+		params = append(params, "--device", device)
+	}
+
 	// Thread count — only pass if user explicitly set it.
 	// Default behavior: let llama-server auto-detect.
 	if launch.opts.NumThread > 0 {
